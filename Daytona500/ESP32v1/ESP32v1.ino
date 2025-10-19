@@ -128,10 +128,7 @@ void processGamepad(ControllerPtr ctl) {
 
       digitalWrite(IN1pin, HIGH); // MOTOR A DIR 1 = ON
       digitalWrite(IN2pin, LOW);  // MOTOR A DIR 2 = OFF
-      digitalWrite(IN3pin, LOW);  // MOTOR B DIR 1 = OFF
-      digitalWrite(IN4pin, LOW);  // MOTOR B DIR 2 = OFF
       analogWrite(ENApin, motorSpeed); // MOTOR A SPEED = motorSpeed variable
-      analogWrite(ENBpin, motorSpeed); // MOTOR B SPEED = motorSpeed variable
     }
 
     // LEFT JOYSTICK DEADZONE 
