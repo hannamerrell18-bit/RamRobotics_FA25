@@ -64,8 +64,8 @@ void dumpGamepad(ControllerPtr ctl) {
   ctl->axisY(),        // (-511 - 512) left Y axis
   ctl->axisRX(),       // (-511 - 512) right X axis
   ctl->axisRY(),       // (-511 - 512) right Y axis
-  ctl->brake(),        // (0 - 1023): brake button
-  ctl->throttle(),     // (0 - 1023): throttle (AKA gas) button
+  ctl->brake(),        // (0 - 1020): brake button
+  ctl->throttle(),     // (0 - 1020): throttle (AKA gas) button
   ctl->miscButtons(),  // bitmask of pressed "misc" buttons
   );
 }
@@ -74,11 +74,10 @@ void dumpGamepad(ControllerPtr ctl) {
 // CONTROLLER SECTION
 void processGamepad(ControllerPtr ctl) {
     // LEFT JOYSTICK UP (FORWARD)
-    if (ctl->axisY() <= -25) {
+    if (ctl->axisY() <= -10) {
       
       // CONVERTING CONTROLLER VALUES TO PWM VALUES
-      int motorSpeed = map(ctl->axisY(), -25,-508, 70, 255); 
-        // replace -25 and -508 with controller-specific idle and top values
+      int motorSpeed = map(ctl->axisY(), -10,-508, 70, 255); 
         // replace 70 with PWM value that motor begins turning at; leave 255 value alone (if want motor at full speed when JS all the way up)
 
       digitalWrite(IN1pin, HIGH); // MOTOR A DIR 1 = ON
@@ -90,8 +89,7 @@ void processGamepad(ControllerPtr ctl) {
     if (ctl->axisY() >= 25) {
 
       // CONVERTING CONTROLLER VALUES TO PWM VALUES
-      int motorSpeed = map(ctl->axisY(), 25, 512, 70, 255);
-        // replace 25 and 512 with controller-specific idle and bottom values
+      int motorSpeed = map(ctl->axisY(), 15, 512, 70, 255);
         // replace 70 with PWM value that motor begins turning at; leave 255 value alone (if want motor at full speed when JS all the way up)
 
       digitalWrite(IN1pin, LOW);  // MOTOR A DIR 1 = OFF
@@ -99,34 +97,8 @@ void processGamepad(ControllerPtr ctl) {
       analogWrite(ENApin, motorSpeed); // MOTOR A SPEED = motorSpeed variable
     }
 
-     //LEFT JOYSTICK - TURN LEFT
-    if(ctl->axisX() <= -25) {
-
-      // CONVERTING CONTROLLER VALUES TO PWM VALUES
-      int motorSpeed = map(ctl->axisX(), -25,-508, 70, 255); 
-        // replace -25 and -508 with controller-specific idle and left-most values
-        // replace 70 with PWM value that motor begins turning at; leave 255 value alone (if want motor at full speed when JS all the way up)
-
-      digitalWrite(IN1pin, LOW);  // MOTOR A DIR 1 = OFF
-      digitalWrite(IN2pin, LOW);  // MOTOR A DIR 2 = OFF
-      analogWrite(ENApin, motorSpeed); // MOTOR A SPEED = motorSpeed variable
-    }
-
-    //LEFT JOYSTICK - TURN RIGHT
-    if(ctl->axisX() >= 25) {
-
-      // CONVERTING CONTROLLER VALUES TO PWM VALUES
-      int motorSpeed = map(ctl->axisX(), 25, 512, 70, 255);
-        // replace 25 and 512 with controller-specific idle and bottom values
-        // replace 70 with PWM value that motor begins turning at; leave 255 value alone (if want motor at full speed when JS all the way up)
-
-      digitalWrite(IN1pin, HIGH); // MOTOR A DIR 1 = ON
-      digitalWrite(IN2pin, LOW);  // MOTOR A DIR 2 = OFF
-      analogWrite(ENApin, motorSpeed); // MOTOR A SPEED = motorSpeed variable
-    }
-
     // LEFT JOYSTICK DEADZONE 
-    if (ctl->axisY() > -25 && ctl->axisY() < 25 && ctl->axisX() > -25 && ctl->axisX() < 25) { // replace values with controller-specific values
+    if (ctl->axisY() > -10 && ctl->axisY() < 15 && ctl->axisX() > 12 && ctl->axisX() < 25) { // replace values with controller-specific values
       analogWrite(ENApin, 0);
       analogWrite(ENBpin, 0);
     }
@@ -144,9 +116,8 @@ void processGamepad(ControllerPtr ctl) {
       int servoPos = map(ctl->axisY(), -508, 512, 0, 180);
       yServo.write(servoPos);
     }
-    
-
-    dumpGamepad(ctl);
+ 
+  dumpGamepad(ctl);
     }
 
 void processControllers() {
