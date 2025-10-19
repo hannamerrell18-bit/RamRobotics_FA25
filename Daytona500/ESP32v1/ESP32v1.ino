@@ -1,8 +1,8 @@
-@ -0,0 +1,241 @@
 #include <Bluepad32.h>
 #include <ESP32Servo.h>
 
 // PIN CONNECTIONS
+const int builtInLed = 2; // built in LED
 int ENApin = 14; // motor 1 speed
 int IN1pin = 27; // motor 1 direction 1
 int IN2pin = 26; // motor 1 direction 2
@@ -55,8 +55,7 @@ void onDisconnectedController(ControllerPtr ctl) {
 
 void dumpGamepad(ControllerPtr ctl) {
   Serial.printf(
-  "idx=%d, dpad: 0x%02x, buttons: 0x%04x, axis L: %4d, %4d, axis R: %4d, %4d, brake: %4d, throttle: %4d, "
-  "misc: 0x%02x, gyro x:%6d y:%6d z:%6d, accel x:%6d y:%6d z:%6d\n",
+  "idx=%d, dpad: 0x%02x, buttons: 0x%04x, axis L: %4d, %4d, axis R: %4d, %4d, brake: %4d, throttle: %4d, \n",
   ctl->index(),        // Controller Index
   ctl->dpad(),         // D-pad
   ctl->buttons(),      // bitmask of pressed buttons
@@ -65,14 +64,24 @@ void dumpGamepad(ControllerPtr ctl) {
   ctl->axisRX(),       // (-511 - 512) right X axis
   ctl->axisRY(),       // (-511 - 512) right Y axis
   ctl->brake(),        // (0 - 1020): brake button
-  ctl->throttle(),     // (0 - 1020): throttle (AKA gas) button
-  ctl->miscButtons(),  // bitmask of pressed "misc" buttons
-  );
+  ctl->throttle()     // (0 - 1020): throttle (AKA gas) button
+   );
 }
 
 
 // CONTROLLER SECTION
 void processGamepad(ControllerPtr ctl) {
+
+  //== PS5 Triangle button = 0x0008 ==//
+    if (ctl->buttons() == 0x0008) {
+      // code for when Y button is pushed
+      digitalWrite(builtInLed, HIGH);
+    }
+    if (ctl->buttons() != 0x0008) {
+      // code for when Y button is released
+      digitalWrite(builtInLed, LOW);
+    }
+
     // LEFT JOYSTICK UP (FORWARD)
     if (ctl->axisY() <= -10) {
       
@@ -100,7 +109,6 @@ void processGamepad(ControllerPtr ctl) {
     // LEFT JOYSTICK DEADZONE 
     if (ctl->axisY() > -10 && ctl->axisY() < 15 && ctl->axisX() > 12 && ctl->axisX() < 25) { // replace values with controller-specific values
       analogWrite(ENApin, 0);
-      analogWrite(ENBpin, 0);
     }
 
     //RIGHT JOYSTICK X-AXIS
@@ -110,13 +118,6 @@ void processGamepad(ControllerPtr ctl) {
       xServo.write(servoPos);
     }
 
-     //RIGHT JOYSTICK Y-AXIS
-    if (ctl->axisY()) {
-
-      int servoPos = map(ctl->axisY(), -508, 512, 0, 180);
-      yServo.write(servoPos);
-    }
- 
   dumpGamepad(ctl);
     }
 
@@ -159,6 +160,7 @@ void setup() {
   // By default, it is disabled.
   BP32.enableVirtualDevice(false);
 
+    pinMode(builtInLed, OUTPUT);
     pinMode(IN1pin, OUTPUT);
     pinMode(IN2pin, OUTPUT);
     pinMode(ENApin, OUTPUT);
