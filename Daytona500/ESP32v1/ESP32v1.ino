@@ -67,12 +67,6 @@ void dumpGamepad(ControllerPtr ctl) {
   ctl->brake(),        // (0 - 1023): brake button
   ctl->throttle(),     // (0 - 1023): throttle (AKA gas) button
   ctl->miscButtons(),  // bitmask of pressed "misc" buttons
-  ctl->gyroX(),        // Gyro X
-  ctl->gyroY(),        // Gyro Y
-  ctl->gyroZ(),        // Gyro Z
-  ctl->accelX(),       // Accelerometer X
-  ctl->accelY(),       // Accelerometer Y
-  ctl->accelZ()        // Accelerometer Z
   );
 }
 
